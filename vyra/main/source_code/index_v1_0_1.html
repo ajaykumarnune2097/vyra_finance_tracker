@@ -1,0 +1,1088 @@
+<!-- 
+ New Change - Suppliers as dropdown, In suppliers all the 0 suppliers are not shown 
+-->
+
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <!-- Viewport is injected by Code.gs via HtmlOutput.addMetaTag(). -->
+  <meta name="theme-color" content="#17251f">
+  <title>VYRA Kitchen — Finance</title>
+  <style>
+    :root {
+      --ink: #17251f;
+      --muted: #66736d;
+      --line: #e2e8e4;
+      --bg: #f4f7f5;
+      --card: #fff;
+      --green: #176b4b;
+      --green2: #e8f4ed;
+      --red: #a63b32;
+      --amber: #8a5a12
+    }
+
+    * {
+      box-sizing: border-box
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font: 15px/1.45 system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif
+    }
+
+    header {
+      background: #17251f;
+      color: #fff;
+      padding: 20px 16px 16px;
+      position: sticky;
+      top: 0;
+      z-index: 5
+    }
+
+    .head {
+      max-width: 1000px;
+      margin: auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px
+    }
+
+    .brand {
+      font-size: 19px;
+      font-weight: 800;
+      letter-spacing: .3px
+    }
+
+    .sub {
+      font-size: 12px;
+      color: #c3d0c8
+    }
+
+    main {
+      max-width: 1000px;
+      margin: 18px auto;
+      padding: 0 14px 40px
+    }
+
+    nav {
+      display: flex;
+      gap: 8px;
+      overflow: auto;
+      padding: 2px 0 14px
+    }
+
+    nav button {
+      white-space: nowrap;
+      border: 1px solid var(--line);
+      background: #fff;
+      border-radius: 999px;
+      padding: 9px 13px;
+      color: var(--ink);
+      font-weight: 650
+    }
+
+    nav button.active {
+      background: var(--ink);
+      color: #fff;
+      border-color: var(--ink)
+    }
+
+    .panel {
+      display: none
+    }
+
+    .panel.active {
+      display: block
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px
+    }
+
+    .metric,
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 14px
+    }
+
+    .metric small {
+      color: var(--muted);
+      display: block;
+      font-size: 12px
+    }
+
+    .metric strong {
+      display: block;
+      font-size: 22px;
+      margin-top: 4px
+    }
+
+    .card {
+      margin-bottom: 13px
+    }
+
+    .card h2 {
+      font-size: 17px;
+      margin: 0 0 12px
+    }
+
+    form .fields {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px
+    }
+
+    label {
+      display: block;
+      font-size: 12px;
+      font-weight: 700;
+      color: #47564e;
+      margin-bottom: 5px
+    }
+
+    input,
+    select,
+    textarea {
+      width: 100%;
+      padding: 11px 12px;
+      border: 1px solid #cfd9d2;
+      border-radius: 10px;
+      background: #fff;
+      color: var(--ink);
+      font: inherit;
+      min-height: 43px
+    }
+
+    textarea {
+      min-height: 72px;
+      resize: vertical
+    }
+
+    .full {
+      grid-column: 1/-1
+    }
+
+    .actions {
+      display: flex;
+      gap: 9px;
+      flex-wrap: wrap;
+      margin-top: 14px
+    }
+
+    button.primary,
+    .btn {
+      border: 0;
+      border-radius: 10px;
+      padding: 11px 15px;
+      background: var(--green);
+      color: white;
+      font-weight: 750;
+      font: inherit;
+      cursor: pointer
+    }
+
+    button.secondary,
+    .btn.secondary {
+      background: #edf2ef;
+      color: var(--ink);
+      border: 1px solid var(--line)
+    }
+
+    button.danger {
+      background: #fff0ee;
+      color: var(--red);
+      border: 1px solid #f0cbc7
+    }
+
+    .note {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 8px
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px
+    }
+
+    th,
+    td {
+      text-align: left;
+      padding: 10px 8px;
+      border-bottom: 1px solid var(--line);
+      vertical-align: top
+    }
+
+    th {
+      color: var(--muted);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .04em
+    }
+
+    .amount {
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap
+    }
+
+    .positive {
+      color: var(--green)
+    }
+
+    .negative {
+      color: var(--red)
+    }
+
+    .pill {
+      display: inline-block;
+      background: var(--green2);
+      color: var(--green);
+      border-radius: 99px;
+      padding: 3px 8px;
+      font-size: 11px;
+      font-weight: 750
+    }
+
+    .empty {
+      padding: 20px;
+      text-align: center;
+      color: var(--muted)
+    }
+
+    .row {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center
+    }
+
+    .hidden {
+      display: none !important
+    }
+
+    /* Responsive layout for phones and narrow embedded web-app viewports */
+
+    .column-picker{border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin:12px 0;background:#fbfcfb}
+    .column-picker summary{cursor:pointer;font-weight:650}
+    .column-choices{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:8px;margin:12px 0}
+    .column-choices label{display:flex;align-items:center;gap:7px;font-size:13px}
+    .column-choices input{width:auto}
+
+    @media (max-width: 760px) {
+      html {
+        width: 100%;
+        min-width: 320px;
+      }
+
+      body {
+        width: 100%;
+        min-width: 320px;
+        max-width: 100%;
+        overflow-x: hidden;
+        font-size: 16px;
+        line-height: 1.5;
+      }
+
+      header {
+        width: 100%;
+        padding: 16px 14px;
+        position: sticky;
+        top: 0;
+      }
+
+      .head {
+        width: 100%;
+        max-width: none;
+        gap: 10px;
+      }
+
+      .brand {
+        font-size: 20px;
+        line-height: 1.25;
+      }
+
+      .sub {
+        font-size: 13px;
+        line-height: 1.35;
+      }
+
+      main {
+        display: block;
+        width: 100%;
+        max-width: none;
+        margin: 12px 0 0;
+        padding: 0 12px 32px;
+      }
+
+      nav {
+        display: flex;
+        width: 100%;
+        max-width: 100%;
+        gap: 8px;
+        overflow-x: auto;
+        overflow-y: hidden;
+        -webkit-overflow-scrolling: touch;
+        white-space: nowrap;
+        padding: 2px 0 14px;
+        scrollbar-width: none;
+      }
+
+      nav::-webkit-scrollbar {
+        display: none;
+      }
+
+      nav button {
+        flex: 0 0 auto;
+        min-height: 44px;
+        padding: 10px 14px;
+        font-size: 14px;
+        line-height: 1.2;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 9px;
+      }
+
+      .metric,
+      .card {
+        min-width: 0;
+        padding: 13px;
+        border-radius: 14px;
+      }
+
+      .metric small {
+        font-size: 13px;
+        line-height: 1.35;
+      }
+
+      .metric strong {
+        font-size: 21px;
+        line-height: 1.25;
+        margin-top: 5px;
+      }
+
+      .card {
+        margin-bottom: 12px;
+      }
+
+      .card h2 {
+        font-size: 17px;
+        line-height: 1.3;
+        margin-bottom: 10px;
+      }
+
+      form .fields {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        gap: 12px;
+      }
+
+      label {
+        font-size: 14px;
+        margin-bottom: 6px;
+      }
+
+      input,
+      select,
+      textarea {
+        width: 100%;
+        min-width: 0;
+        min-height: 48px;
+        padding: 12px;
+        font-size: 16px;
+        line-height: 1.35;
+      }
+
+      textarea {
+        min-height: 90px;
+      }
+
+      .actions {
+        gap: 8px;
+      }
+
+      .actions button,
+      .btn,
+      button.primary,
+      button.secondary,
+      button.danger {
+        min-height: 46px;
+        padding: 12px 15px;
+        font-size: 15px;
+      }
+
+      .note {
+        font-size: 13px;
+        line-height: 1.45;
+      }
+
+      table {
+        width: 100%;
+        font-size: 13px;
+      }
+
+      th {
+        font-size: 11px;
+      }
+
+      th,
+      td {
+        padding: 10px 7px;
+      }
+
+      th:nth-child(4),
+      td:nth-child(4) {
+        display: none;
+      }
+
+      .row {
+        min-width: 0;
+      }
+
+      .row.wrap {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+    }
+
+    /* Extra-small phones: preserve readable controls without forcing horizontal page scroll */
+    @media (max-width: 360px) {
+      main {
+        padding-left: 10px;
+        padding-right: 10px;
+      }
+
+      .grid {
+        gap: 7px;
+      }
+
+      .metric,
+      .card {
+        padding: 10px;
+      }
+
+      .metric strong {
+        font-size: 19px;
+      }
+
+      nav {
+        gap: 6px;
+      }
+
+      nav button {
+        padding-left: 12px;
+        padding-right: 12px;
+      }
+    }
+
+    /* Button feedback and visible app loading state */
+    button,
+    .btn {
+      -webkit-tap-highlight-color: transparent;
+      transition: transform .12s ease, filter .12s ease, box-shadow .12s ease, background-color .12s ease;
+      touch-action: manipulation;
+    }
+
+    button:not(:disabled):active,
+    .btn:active,
+    .tap-feedback {
+      transform: translateY(1px) scale(.97);
+      filter: brightness(.92);
+      box-shadow: inset 0 2px 4px rgba(0, 0, 0, .16)
+    }
+
+    button:focus-visible,
+    .btn:focus-visible {
+      outline: 3px solid rgba(23, 107, 75, .28);
+      outline-offset: 2px
+    }
+
+    button:disabled {
+      opacity: .62;
+      cursor: wait;
+      filter: saturate(.7)
+    }
+
+    .loading-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background: rgba(18, 31, 25, .34);
+      backdrop-filter: blur(2px)
+    }
+
+    .loading-overlay.hidden {
+      display: none !important
+    }
+
+    .loading-box {
+      display: flex;
+      align-items: center;
+      gap: 13px;
+      padding: 17px 20px;
+      border-radius: 14px;
+      background: #fff;
+      color: var(--ink);
+      box-shadow: 0 12px 36px rgba(0, 0, 0, .2);
+      font-weight: 700;
+      font-size: 15px
+    }
+
+    .spinner {
+      width: 22px;
+      height: 22px;
+      flex: 0 0 22px;
+      border: 3px solid #dce8e1;
+      border-top-color: var(--green);
+      border-radius: 50%;
+      animation: vyra-spin .75s linear infinite
+    }
+
+    @keyframes vyra-spin {
+      to {
+        transform: rotate(360deg)
+      }
+    }
+
+    @media(prefers-reduced-motion:reduce) {
+
+      *,
+      *::before,
+      *::after {
+        animation-duration: .01ms !important;
+        transition-duration: .01ms !important
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div id="appLoading" class="loading-overlay" role="status" aria-live="polite">
+    <div class="loading-box"><span class="spinner" aria-hidden="true"></span><span id="loadingMessage">Loading your VYRA
+        data…</span></div>
+  </div>
+  <header>
+    <div class="head">
+      <div>
+        <div class="brand">VYRA KITCHEN</div>
+        <div class="sub">Shared financial tracker · Cloud test build</div>
+      </div>
+      <div class="sub" id="today"></div>
+    </div>
+  </header>
+  <main>
+    <nav>
+      <button class="active" data-tab="dashboard">Dashboard</button>
+      <button data-tab="add">+ Add transaction</button>
+      <button data-tab="suppliers">Suppliers</button>
+      <button data-tab="history">Transactions</button>
+      <button data-tab="search">Search</button>
+      <button data-tab="backup">Backup & setup</button>
+    </nav>
+
+    <section id="dashboard" class="panel active">
+      <div class="grid">
+        <div class="metric"><small>Today's recorded sales</small><strong id="mSales">₹0</strong></div>
+        <div class="metric"><small>Today's purchases</small><strong id="mPurchases">₹0</strong></div>
+        <div class="metric"><small>Today's expenses</small><strong id="mExpenses">₹0</strong></div>
+        <div class="metric"><small>Physical cash on hand</small><strong id="mCash">₹0</strong></div>
+      </div>
+      <div class="row" style="margin:18px 0 10px">
+        <h2 style="margin:0">This month</h2><span class="note" id="monthRange"></span>
+      </div>
+      <div class="grid">
+        <div class="metric"><small>Month-to-date sales</small><strong id="mmSales">₹0</strong></div>
+        <div class="metric"><small>Month-to-date purchases</small><strong id="mmPurchases">₹0</strong></div>
+        <div class="metric"><small>Month-to-date expenses</small><strong id="mmExpenses">₹0</strong></div>
+        <div class="metric"><small>Month-to-date cash movement</small><strong id="mmCash">₹0</strong></div>
+      </div>
+      <div class="card" style="margin-top:13px">
+        <div class="row">
+          <h2>Supplier outstanding</h2><strong id="mOutstanding">₹0</strong>
+        </div>
+        <div id="supplierSummary" class="note">No supplier balances yet.</div>
+      </div>
+      <div class="card">
+        <h2>Today's sales by channel</h2>
+        <div id="salesSummary" class="note">No sales entered today.</div>
+      </div>
+      <div class="card">
+        <h2>Recent transactions</h2>
+        <div id="recent"></div>
+      </div>
+    </section>
+
+    <section id="add" class="panel">
+      <div class="card">
+        <h2>Add transaction</h2>
+        <form id="txForm">
+          <div class="fields">
+            <div><label>Date</label><input id="date" type="date" required></div>
+            <div><label>Transaction type</label><select id="type" required>
+                <option value="">Choose type…</option>
+                <option>Purchase</option>
+                <option>Expense</option>
+                <option>Supplier Payment</option>
+                <option>Sales</option>
+                <option>Cash Adjustment</option>
+              </select></div>
+            <div id="categoryWrap"><label>Category</label><select id="category"></select></div>
+            <div id="employeeWrap"><label>Staff member / cost bucket</label><select id="employee">
+                <option>Shahbaz — Chef</option>
+                <option>Anil — Helper</option>
+                <option>Common Staff Expenses</option>
+              </select></div>
+            <div id="itemWrap"><label>Item / description</label><input id="item"
+                placeholder="e.g. Paneer, boneless chicken, shop rent"></div>
+            <div id="supplierWrap"><label>Supplier</label><select id="supplier" required><option value="">Select supplier</option></select><datalist id="supplierList"></datalist></div>
+            <div id="qtyWrap"><label>Quantity (optional)</label><input id="qty" placeholder="e.g. 5"></div>
+            <div id="unitWrap"><label>Unit (optional)</label><select id="unit">
+                <option value="">Select unit (optional)</option>
+              </select></div>
+            <div id="amountWrap"><label>Total amount (₹)</label><input id="amount" type="number" min="0.01" step="0.01"
+                placeholder="0.00"></div>
+            <div id="statusWrap"><label>Payment status</label><select id="status">
+                <option value="Paid">Paid in full</option>
+                <option value="Partial">Partially paid</option>
+                <option value="Credit">Unpaid / Credit</option>
+              </select></div>
+            <div id="methodWrap"><label>Payment method</label><select id="method">
+                <option>Cash</option>
+                <option>UPI</option>
+                <option>Credit</option>
+              </select></div>
+            <div id="paidWrap"><label>Amount paid now (₹)</label><input id="paid" type="number" min="0" step="0.01"
+                placeholder="0.00"></div>
+            <div id="channelWrap"><label>Sales channel</label><select id="channel">
+                <option>Cash</option>
+                <option>UPI — Mosambi</option>
+                <option>Zomato</option>
+                <option>Swiggy</option>
+                <option>Ownly</option>
+              </select></div>
+            <div id="deductionWrap"><label>Platform deductions / refunds (₹)</label><input id="deduction" type="number"
+                min="0" step="0.01" value="0"></div>
+            <div id="cashDirectionWrap"><label>Cash adjustment</label><select id="cashDirection">
+                <option value="in">Cash added</option>
+                <option value="out">Cash withdrawn</option>
+              </select></div>
+            <div><label>Entered by</label><select id="enteredBy">
+                <option>Rahul</option>
+                <option>Ajay</option>
+              </select></div>
+            <div id="notesWrap" class="full"><label>Notes (optional)</label><textarea id="notes"
+                placeholder="Short explanation or reference"></textarea></div>
+          </div>
+          <div class="note" id="formHint">Choose a transaction type to show the relevant fields.</div>
+          <div class="actions"><button class="primary" type="submit">Save transaction</button><button class="secondary"
+              type="reset" id="resetForm">Clear form</button></div>
+        </form>
+      </div>
+    </section>
+
+    <section id="suppliers" class="panel">
+      <div class="card">
+        <h2>Supplier balances</h2>
+        <div class="note">Balances are calculated as credit purchases minus supplier payments. Payments reduce the
+          selected supplier's overall balance.</div>
+        <div id="supplierTable"></div>
+      </div>
+      <div class="card">
+        <h2>Record a supplier payment</h2>
+        <form id="paymentForm">
+          <div class="fields">
+            <div><label>Payment date</label><input id="payDate" type="date" required></div>
+            <div><label>Supplier</label><select id="paySupplier" required><option value="">Select supplier</option></select></div>
+            <div><label>Amount paid (₹)</label><input id="payAmount" type="number" min="0.01" step="0.01" required>
+            </div>
+            <div><label>Payment method</label><select id="payMethod">
+                <option>UPI</option>
+                <option>Cash</option>
+              </select></div>
+            <div class="full"><label>Notes (optional)</label><input id="payNotes" placeholder="e.g. Part payment"></div>
+          </div>
+          <div class="actions"><button class="primary">Record supplier payment</button></div>
+        </form>
+      </div>
+    </section>
+
+    <section id="history" class="panel">
+      <div class="card">
+        <div class="row wrap">
+          <h2>Transaction history</h2><button class="secondary" id="exportCsv">Export CSV</button>
+        </div>
+        <div id="historyTable"></div>
+      </div>
+    </section>
+
+    <section id="search" class="panel">
+      <div class="card">
+        <h2>Search transactions</h2>
+        <p class="note">Search any date range, supplier, item, category, description or transaction type. Results are
+          ordered newest first.</p>
+        <div class="fields">
+          <div><label>From date</label><input id="searchFrom" type="date"></div>
+          <div><label>To date</label><input id="searchTo" type="date"></div>
+          <div><label>Supplier</label><select id="searchSupplier"><option value="">Any supplier</option></select></div>
+          <div><label>Item / keyword</label><input id="searchKeyword" type="search"
+              placeholder="e.g. paneer, Zepto, fries"></div>
+          <div><label>Transaction type</label><select id="searchType">
+              <option value="">All types</option>
+              <option>Purchase</option>
+              <option>Expense</option>
+              <option>Supplier Payment</option>
+              <option>Sales</option>
+              <option>Cash Adjustment</option>
+            </select></div>
+        </div>
+        <div class="actions"><button class="primary" id="runSearch" type="button">Search</button><button
+            class="secondary" id="clearSearch" type="button">Clear filters</button><button class="secondary"
+            id="searchCsv" type="button">Export results CSV</button></div>
+        <details class="column-picker" open>
+          <summary>Choose search result columns</summary>
+          <div id="searchColumnChoices" class="column-choices"></div>
+          <div class="note">The CSV export uses exactly these columns, in the same order.</div>
+        </details>
+        <div class="note" id="searchCount">Set filters and search transactions.</div>
+        <div id="searchResults"></div>
+      </div>
+    </section>
+    <section id="backup" class="panel">
+      <div class="card">
+        <h2>Cloud data backup & test controls</h2>
+        <p class="note">Transactions are stored in the shared VYRA Google Sheet. Export a JSON backup before any test
+          reset. The reset action clears the shared Transactions sheet, so use it only during testing and only when both
+          users agree.</p>
+        <div class="actions"><button class="primary" id="exportJson">Download full backup</button><label
+            class="btn secondary" for="importJson" style="cursor:pointer">Restore backup</label><input id="importJson"
+            type="file" accept="application/json" class="hidden"></div>
+      </div>
+      <div class="card">
+        <h2>Transaction deletion is disabled</h2>
+        <p class="note">For safety, this app does not provide a button that can erase all shared transactions. If a
+          reset is genuinely required, download a full JSON backup first, confirm with Rahul, then delete transaction
+          rows directly in the Google Sheet while keeping the header row. The app-side delete endpoint is also disabled.
+        </p>
+      </div>
+      <div class="card">
+        <h2>Important notes</h2>
+        <ul class="note">
+          <li>Transactions are shared through the VYRA Google Sheet.</li>
+          <li>No automatic connection to Mosambi, Zomato, Swiggy, Ownly or OrderMatic. Enter daily totals manually.</li>
+          <li>This is an operational tracker, not accounting/tax software. Verify figures before relying on reports.
+          </li>
+        </ul>
+      </div>
+    </section>
+  </main>
+  <script>
+    const $ = id => document.getElementById(id), INR = n => '₹' + (Number(n) || 0).toLocaleString('en-IN', {maximumFractionDigits: 2});
+    const now = new Date(), today = [now.getFullYear(), String(now.getMonth() + 1).padStart(2, '0'), String(now.getDate()).padStart(2, '0')].join('-'); $('today').textContent = new Date().toLocaleDateString('en-IN', {day: 'numeric', month: 'short', year: 'numeric'});
+    $('date').value = today; $('payDate').value = today; $('date').max = today; $('payDate').max = today;
+    const categories = {
+      Purchase: ['Chicken', 'Dairy & Refrigerated Items', 'Frozen Food & Fries', 'Kirana & General Ingredients', 'Cooking Oil', 'Drinks', 'Bread & Bakery', 'Rumali', 'Packaging', 'Online Platform', 'Vegetables', 'Other Raw Materials', 'Online Platform'],
+      Expense: ['Shop Expenses', 'Staff & Employee Expenses', 'Miscellaneous Expenses', 'Other Operating Expenses'],
+      'Supplier Payment': ['Supplier Settlement'],
+      Sales: ['Sales'],
+      'Cash Adjustment': ['Cash Adjustment']
+    };
+    let txs = [];
+    let lists = {};
+    let busy = false;
+    function setBusy(on, message) {
+      busy = on;
+      const overlay = $('appLoading');
+      if (overlay) {
+        $('loadingMessage').textContent = message || 'Working…';
+        overlay.classList.toggle('hidden', !on);
+      }
+      document.querySelectorAll('button').forEach(b => {b.disabled = on;});
+      document.body.setAttribute('aria-busy', on ? 'true' : 'false');
+    }
+    function showError(err) {
+      setBusy(false);
+      alert((err && err.message) ? err.message : String(err || 'Unknown server error'));
+    }
+    function refreshFromSheet(done) {
+      setBusy(true, 'Loading the latest VYRA data…');
+      google.script.run.withSuccessHandler(data => {
+        txs = data.transactions || [];
+        lists = data.lists || {};
+        populateLists();
+        render();
+        setBusy(false);
+        if (done) done();
+      }).withFailureHandler(showError).getInitialData();
+    }
+    function saveToSheet(obj, done) {
+      setBusy(true, 'Saving transaction to the shared sheet…');
+      google.script.run.withSuccessHandler(() => {
+        setBusy(true, 'Saved. Refreshing dashboard and transaction history…');
+        refreshFromSheet(done);
+      }).withFailureHandler(showError).saveTransaction(obj);
+    }
+    function populateLists() {
+      const suppliers = lists.Suppliers || [];
+      populateSupplierSelects();
+      const staff = lists.Staff || ['Shahbaz — Chef', 'Anil — Helper', 'Common Staff Expenses'];
+      $('employee').innerHTML = staff.map(x => `<option>${esc(x)}</option>`).join('');
+      const salesChannels = [...new Set([...(lists['Sales Channels'] || ['Cash', 'UPI — Mosambi', 'Zomato', 'Swiggy']), 'Ownly'])];
+      const selectedChannel = $('channel').value;
+      $('channel').innerHTML = salesChannels.map(x => `<option>${esc(x)}</option>`).join('');
+      if (salesChannels.includes(selectedChannel)) $('channel').value = selectedChannel;
+
+      // Load unit choices from the spreadsheet's Lists > Units column.
+      const units = [...new Set((lists.Units || ['kg', 'g', 'litre', 'ml', 'pcs', 'pack', 'box', 'bottle'])
+        .map(x => String(x || '').trim()).filter(Boolean))];
+      const unitSelect = $('unit');
+      const selectedUnit = unitSelect.value;
+      unitSelect.innerHTML = '<option value="">Select unit (optional)</option>'
+        + units.map(x => `<option value="${esc(x)}">${esc(x)}</option>`).join('');
+      if (units.includes(selectedUnit)) unitSelect.value = selectedUnit;
+    }
+    function supplierCategoryMap() {
+      const map = {};
+      txs.filter(x => x.type === 'Purchase' && x.category && x.supplier).forEach(x => {
+        if (!map[x.category]) map[x.category] = new Set();
+        map[x.category].add(x.supplier);
+      });
+      return map;
+    }
+    function fillSelect(select, values, selected) {
+      select.innerHTML = '<option value="">Select supplier</option>' + values.map(x => `<option value="${esc(x)}">${esc(x)}</option>`).join('');
+      if (values.includes(selected)) select.value = selected;
+    }
+    function populateSupplierSelects() {
+      const all = [...new Set((lists.Suppliers || []).map(clean).filter(Boolean))].sort((a,b)=>a.localeCompare(b));
+      const selectedSearchSupplier = $('searchSupplier').value;
+      const category = $('category')?.value || '';
+      const linked = supplierCategoryMap()[category];
+      const added = (window.vyraNewCategorySuppliers && window.vyraNewCategorySuppliers[category]) || [];
+      const purchaseSuppliers = $('type').value === 'Purchase' && linked && linked.size ? [...new Set([...linked, ...added])].sort((a,b)=>a.localeCompare(b)) : all;
+      const current = $('supplier').value;
+      fillSelect($('supplier'), purchaseSuppliers, current);
+      $('supplier').insertAdjacentHTML('beforeend', '<option value="__ADD_NEW__">＋ Add new supplier…</option>');
+      fillSelect($('paySupplier'), all, $('paySupplier').value);
+      $('searchSupplier').innerHTML = '<option value="">Any supplier</option>' + all.map(x => `<option value="${esc(x)}">${esc(x)}</option>`).join('');
+      if (all.includes(selectedSearchSupplier)) $('searchSupplier').value = selectedSearchSupplier;
+    }
+    function addSupplierFromPrompt(selectId) {
+      const category = $('type').value === 'Purchase' ? $('category').value : '';
+      const name = clean(prompt('Enter the new supplier name:'));
+      if (!name) return;
+      if ((lists.Suppliers || []).some(x => x.toLowerCase() === name.toLowerCase())) {
+        alert('This supplier already exists.'); populateSupplierSelects(); return;
+      }
+      setBusy(true, 'Adding supplier to the shared list…');
+      google.script.run.withSuccessHandler(result => {
+        lists.Suppliers = result.suppliers || [...(lists.Suppliers || []), name];
+        // Keep the newly added supplier available in the active category for this session.
+        if (category) {
+          if (!window.vyraNewCategorySuppliers) window.vyraNewCategorySuppliers = {};
+          (window.vyraNewCategorySuppliers[category] ||= []).push(name);
+        }
+        populateSupplierSelects();
+        $(selectId).value = name;
+        setBusy(false);
+      }).withFailureHandler(showError).addSupplier(name);
+    }
+    function show(id, on) {$(id).classList.toggle('hidden', !on)}
+    function typeFields() {
+      const t = $('type').value;
+      ['categoryWrap', 'itemWrap', 'supplierWrap', 'qtyWrap', 'unitWrap', 'amountWrap', 'statusWrap', 'methodWrap', 'paidWrap', 'channelWrap', 'deductionWrap', 'employeeWrap', 'cashDirectionWrap', 'notesWrap'].forEach(id => show(id, false));
+      const listKey = t === 'Purchase' ? 'Purchase Categories' : t === 'Expense' ? 'Expense Categories' : t === 'Supplier Payment' ? 'Purchase Categories' : t === 'Sales' ? 'Purchase Categories' : 'Purchase Categories';
+      const categoryOptions = t === 'Purchase'
+        ? [...new Set([...(lists['Purchase Categories'] || []), ...categories.Purchase])]
+        : t === 'Expense'
+          ? [...new Set([...(lists['Expense Categories'] || []), ...categories.Expense])]
+          : (categories[t] || []);
+      $('category').innerHTML = categoryOptions.map(x => `<option>${esc(x)}</option>`).join('');
+      if (t === 'Purchase') {['categoryWrap', 'itemWrap', 'supplierWrap', 'qtyWrap', 'unitWrap', 'amountWrap', 'statusWrap', 'methodWrap', 'paidWrap', 'notesWrap'].forEach(id => show(id, true)); $('method').innerHTML = '<option>Cash</option><option>UPI</option><option>Credit</option>'; $('supplier').required = true; $('paid').value = ''; $('status').value = 'Paid'; $('method').value = 'Cash'; $('formHint').textContent = 'Enter the full purchase value. For credit, paid now is ₹0; for partial payment, enter the amount paid now.'}
+      else if (t === 'Expense') {['categoryWrap', 'itemWrap', 'amountWrap', 'methodWrap', 'notesWrap'].forEach(id => show(id, true)); $('method').innerHTML = '<option>Cash</option><option>UPI</option>'; $('supplier').required = false; updateEmployeeField(); $('formHint').textContent = 'Choose Staff & Employee Expenses to select Shahbaz, Anil or Common Staff Expenses. Add a clear description.'}
+      else if (t === 'Supplier Payment') {['supplierWrap', 'amountWrap', 'methodWrap', 'notesWrap'].forEach(id => show(id, true)); $('supplier').required = true; $('method').innerHTML = '<option>Cash</option><option>UPI</option>'; $('formHint').textContent = 'This reduces the selected supplier’s overall outstanding balance; it is not a new expense.'}
+      else if (t === 'Sales') {['amountWrap', 'channelWrap', 'deductionWrap', 'notesWrap'].forEach(id => show(id, true)); $('supplier').required = false; $('formHint').textContent = 'Enter the gross sales total. For Zomato or Swiggy, add deductions/refunds if known.'}
+      else if (t === 'Cash Adjustment') {['amountWrap', 'methodWrap', 'cashDirectionWrap', 'notesWrap'].forEach(id => show(id, true)); $('method').innerHTML = '<option>Cash</option><option>UPI</option>'; $('method').value = 'Cash'; $('supplier').required = false; $('formHint').textContent = 'Use only for cash added or withdrawn outside normal sales and recorded expenses. Explain why.'}
+      else {$('formHint').textContent = 'Choose a transaction type to show the relevant fields.'}
+      if (t !== 'Purchase' && t !== 'Expense' && t !== 'Supplier Payment' && t !== 'Cash Adjustment') $('method').value = 'UPI';
+    }
+    $('type').addEventListener('change', () => { typeFields(); populateSupplierSelects(); });
+    $('category').addEventListener('change', populateSupplierSelects);
+    $('supplier').addEventListener('change', () => { if ($('supplier').value === '__ADD_NEW__') addSupplierFromPrompt('supplier'); });
+    function updateEmployeeField() {show('employeeWrap', $('type').value === 'Expense' && $('category').value === 'Staff & Employee Expenses')}
+    $('category').addEventListener('change', () => { updateEmployeeField(); populateSupplierSelects(); });
+    $('status').addEventListener('change', () => {const s = $('status').value; if (s === 'Credit') {$('method').value = 'Credit'; $('paid').value = 0} else if (s === 'Paid') {$('method').value = 'Cash'; $('paid').value = $('amount').value} });
+    $('amount').addEventListener('input', () => {if ($('type').value === 'Purchase' && $('status').value === 'Paid') $('paid').value = $('amount').value});
+    $('method').addEventListener('change', () => {if ($('type').value === 'Purchase') {$('status').value = $('method').value === 'Credit' ? 'Credit' : 'Paid'; if ($('status').value === 'Paid') $('paid').value = $('amount').value; else $('paid').value = 0} });
+    function clean(v) {return String(v || '').trim()}
+    $('txForm').addEventListener('submit', e => {
+      e.preventDefault(); const t = $('type').value, date = $('date').value, amount = Number($('amount').value || 0);
+      if (!t || !date || amount <= 0) {alert('Choose a transaction type, date and valid amount.'); return } if (date > today) {alert('Future-dated transactions are not allowed. Choose today or an earlier date.'); return }
+      let obj = {id: Date.now() + Math.random(), date, type: t, amount, category: clean($('category').value), item: clean($('item').value), supplier: clean($('supplier').value), qty: clean($('qty').value), unit: clean($('unit').value), method: clean($('method').value), status: clean($('status').value), paid: 0, channel: clean($('channel').value), deduction: Number($('deduction').value || 0), employee: (t === 'Expense' && clean($('category').value) === 'Staff & Employee Expenses' ? clean($('employee').value) : ''), cashDirection: $('cashDirection').value, notes: clean($('notes').value), enteredBy: clean($('enteredBy').value)};
+      if (t === 'Purchase') {
+        obj.paid = Number($('paid').value || 0);
+        if (obj.paid > amount) {alert('Amount paid cannot exceed purchase amount.'); return }
+        if (obj.status === 'Credit') obj.paid = 0;
+        if (obj.status === 'Paid' && obj.method === 'Credit') {alert('Choose Cash or UPI for a fully paid purchase.'); return }
+        if (obj.status === 'Partial' && obj.paid >= amount) {alert('For a partial payment, amount paid must be less than total.'); return }
+        if (!obj.supplier) {alert('Enter the supplier name so supplier-wise purchases can be tracked.'); return }
+      } else if (t === 'Supplier Payment') {obj.paid = amount; if (!obj.supplier) {alert('Enter supplier name.'); return } }
+      else if (t === 'Sales') {obj.paid = amount - obj.deduction; if (obj.deduction > amount) {alert('Deductions cannot exceed gross sales.'); return } }
+      else if (t === 'Expense') {obj.paid = amount}
+      else {obj.paid = amount}
+      saveToSheet(obj, () => {$('txForm').reset(); $('date').value = today; typeFields(); document.querySelector('[data-tab="dashboard"]').click();});
+    });
+    $('paymentForm').addEventListener('submit', e => {e.preventDefault(); let s = clean($('paySupplier').value), a = Number($('payAmount').value), paymentDate = $('payDate').value; if (paymentDate > today) {alert('Future-dated supplier payments are not allowed. Choose today or an earlier date.'); return } if (!paymentDate || !s || a <= 0) return; let outstanding = supplierBalances().find(x => x.name.toLowerCase() === s.toLowerCase())?.balance || 0; if (a > outstanding) {alert('Payment exceeds this supplier’s recorded outstanding of ' + INR(outstanding) + '. Record the opening credit or purchase first.'); return } const obj = {date: paymentDate, type: 'Supplier Payment', amount: a, paid: a, supplier: s, method: $('payMethod').value, notes: clean($('payNotes').value), enteredBy: clean($('enteredBy').value)}; saveToSheet(obj, () => {$('paymentForm').reset(); $('payDate').value = today; alert('Supplier payment recorded.');});});
+    function supplierBalances() {let m = {}; txs.forEach(x => {let s = x.supplier; if (!s) return; if (!m[s]) m[s] = 0; if (x.type === 'Purchase') m[s] += Math.max(0, Number(x.amount) - Number(x.paid || 0)); if (x.type === 'Supplier Payment') m[s] -= Number(x.amount)}); return Object.entries(m).map(([name, balance]) => ({name, balance: Math.max(0, balance)})).filter(x => x.balance > 0.009).sort((a, b) => b.balance - a.balance)}
+    function cashBalance() {let cash = 0; txs.forEach(x => {if (x.type === 'Sales' && x.channel === 'Cash') cash += Number(x.amount); if (x.type === 'Purchase' && x.method === 'Cash') cash -= Number(x.paid || 0); if (x.type === 'Expense' && x.method === 'Cash') cash -= Number(x.amount); if (x.type === 'Supplier Payment' && x.method === 'Cash') cash -= Number(x.amount); if (x.type === 'Cash Adjustment' && x.category !== 'Cash Adjustment — UPI') cash += (x.cashDirection === 'out' ? -1 : 1) * Number(x.amount)}); return cash}
+    function cashMovementFor(items) {
+      let cash = 0;
+      items.forEach(x => {
+        if (x.type === 'Sales' && x.channel === 'Cash') cash += Number(x.amount);
+        if (x.type === 'Purchase' && x.method === 'Cash') cash -= Number(x.paid || 0);
+        if (x.type === 'Expense' && x.method === 'Cash') cash -= Number(x.amount);
+        if (x.type === 'Supplier Payment' && x.method === 'Cash') cash -= Number(x.amount);
+        if (x.type === 'Cash Adjustment' && x.category !== 'Cash Adjustment — UPI') cash += (x.cashDirection === 'out' ? -1 : 1) * Number(x.amount);
+      });
+      return cash;
+    }
+    function transactionOrder(a, b) {
+      const ac = Number(a.createdAt || 0), bc = Number(b.createdAt || 0);
+      if (ac !== bc && (ac || bc)) return bc - ac;
+      return Number(b.sortOrder || 0) - Number(a.sortOrder || 0);
+    }
+    function render() {
+      const day = today, dayTx = txs.filter(x => x.date === day);
+      const monthPrefix = today.slice(0, 7), monthTx = txs.filter(x => (x.date || '').slice(0, 7) === monthPrefix);
+      const [yy, mm] = monthPrefix.split('-').map(Number), monthLast = new Date(yy, mm, 0).getDate();
+      const monthName = new Date(yy, mm - 1, 1).toLocaleDateString('en-IN', {month: 'long', year: 'numeric'});
+      $('monthRange').textContent = `${monthName} · 1–${monthLast}`;
+      $('mSales').textContent = INR(dayTx.filter(x => x.type === 'Sales').reduce((a, x) => a + Number(x.amount), 0));
+      $('mPurchases').textContent = INR(dayTx.filter(x => x.type === 'Purchase').reduce((a, x) => a + Number(x.amount), 0));
+      $('mExpenses').textContent = INR(dayTx.filter(x => x.type === 'Expense').reduce((a, x) => a + Number(x.amount), 0));
+      $('mCash').textContent = INR(cashBalance());
+      $('mmSales').textContent = INR(monthTx.filter(x => x.type === 'Sales').reduce((a, x) => a + Number(x.amount), 0));
+      $('mmPurchases').textContent = INR(monthTx.filter(x => x.type === 'Purchase').reduce((a, x) => a + Number(x.amount), 0));
+      $('mmExpenses').textContent = INR(monthTx.filter(x => x.type === 'Expense').reduce((a, x) => a + Number(x.amount), 0));
+      $('mmCash').textContent = INR(cashMovementFor(monthTx));
+      const su = supplierBalances(), tot = su.reduce((a, x) => a + x.balance, 0); $('mOutstanding').textContent = INR(tot);
+      $('supplierSummary').innerHTML = su.length ? su.map(x => `${esc(x.name)}: <b>${INR(x.balance)}</b>`).join(' · ') : 'No supplier balances yet.';
+      let channels = {}; dayTx.filter(x => x.type === 'Sales').forEach(x => channels[x.channel] = (channels[x.channel] || 0) + Number(x.amount));
+      $('salesSummary').innerHTML = Object.keys(channels).length ? Object.entries(channels).map(([k, v]) => `${esc(k)}: <b>${INR(v)}</b>`).join(' · ') : 'No sales entered today.';
+      const ordered = [...txs].sort(transactionOrder);
+      $('recent').innerHTML = table(ordered.slice(0, 5));
+      $('supplierTable').innerHTML = su.length ? `<table><thead><tr><th>Supplier</th><th>Outstanding</th></tr></thead><tbody>${su.map(x => `<tr><td>${esc(x.name)}</td><td class="amount">${INR(x.balance)}</td></tr>`).join('')}</tbody></table>` : '<div class="empty">No supplier activity yet.</div>';
+      $('historyTable').innerHTML = table(ordered);
+      runSearch();
+    }
+    function esc(s) {return String(s || '').replace(/[&<>"']/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[c]))}
+    const SEARCH_COLUMNS = [
+      ['Date','date',x=>x.date], ['Transaction Type','type',x=>x.type], ['Category','category',x=>x.category],
+      ['Item / Description','item',x=>x.item || x.category || x.notes || '—'], ['Supplier / Channel','supplier',x=>x.supplier || x.channel || x.method || '—'], ['Quantity','qty',x=>x.qty],
+      ['Unit','unit',x=>x.unit], ['Total Amount','amount',x=>INR(x.amount)], ['Amount Paid Now','paid',x=>INR(x.paid)],
+      ['Payment Status','status',x=>x.status], ['Payment Method','method',x=>x.method], ['Sales Channel','channel',x=>x.channel],
+      ['Staff','employee',x=>x.employee], ['Notes','notes',x=>x.notes], ['Entered By','enteredBy',x=>x.enteredBy]
+    ];
+    let selectedSearchColumns = ['date','type','item','supplier','amount'];
+    function renderSearchColumnChoices() {
+      $('searchColumnChoices').innerHTML = SEARCH_COLUMNS.map(c => `<label><input type="checkbox" data-search-column="${c[1]}" ${selectedSearchColumns.includes(c[1])?'checked':''}> ${c[0]}</label>`).join('');
+      $('searchColumnChoices').querySelectorAll('input').forEach(input => input.addEventListener('change', () => {
+        const key = input.dataset.searchColumn;
+        selectedSearchColumns = input.checked ? [...selectedSearchColumns, key] : selectedSearchColumns.filter(x=>x!==key);
+        selectedSearchColumns = SEARCH_COLUMNS.map(c=>c[1]).filter(k=>selectedSearchColumns.includes(k));
+        if (!selectedSearchColumns.length) { input.checked = true; selectedSearchColumns = [key]; }
+        runSearch();
+      }));
+    }
+    function activeSearchColumns() { return SEARCH_COLUMNS.filter(c => selectedSearchColumns.includes(c[1])); }
+    function table(arr, searchMode=false) {
+      if (!arr.length) return '<div class="empty">No transactions recorded yet.</div>';
+      const cols = searchMode ? activeSearchColumns() : [['Date','date',x=>x.date],['Type','type',x=>x.type],['Description','item',x=>x.item || x.category || x.notes || '—'],['Supplier / Channel','supplier',x=>x.supplier || x.channel || x.method || '—'],['Amount','amount',x=>INR(x.amount)]];
+      return `<div style="overflow:auto"><table><thead><tr>${cols.map(c=>`<th>${c[0]}</th>`).join('')}</tr></thead><tbody>${arr.map(x=>`<tr>${cols.map(c=>`<td class="${c[1]==='amount'?'amount':''}">${esc(c[2](x) ?? '')}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
+    }
+    function runSearch() {
+      const from = $('searchFrom').value, to = $('searchTo').value, supplier = clean($('searchSupplier').value).toLowerCase(), keyword = clean($('searchKeyword').value).toLowerCase(), type = $('searchType').value;
+      const results = [...txs].sort(transactionOrder).filter(x => {
+        if (from && x.date < from) return false;
+        if (to && x.date > to) return false;
+        if (supplier && !(x.supplier || '').toLowerCase().includes(supplier)) return false;
+        if (type && x.type !== type) return false;
+        if (keyword && !([x.item, x.category, x.supplier, x.notes, x.channel, x.method, x.employee].join(' ').toLowerCase().includes(keyword))) return false;
+        return true;
+      });
+      $('searchCount').textContent = `${results.length} transaction${results.length === 1 ? '' : 's'} found`;
+      $('searchResults').innerHTML = table(results, true);
+      window.vyraSearchResults = results;
+    }
+    function showButtonFeedback(button, label, action) {
+      if (!button || button.disabled) return;
+      const original = button.textContent;
+      button.classList.add('tap-feedback'); button.disabled = true; button.textContent = label;
+      requestAnimationFrame(() => {
+        try {action();}
+        finally {window.setTimeout(() => {button.textContent = original; button.disabled = false; button.classList.remove('tap-feedback')}, 260);}
+      });
+    }
+    $('runSearch').addEventListener('click', () => showButtonFeedback($('runSearch'), 'Searching…', runSearch));
+    ['searchFrom', 'searchTo', 'searchSupplier', 'searchKeyword', 'searchType'].forEach(id => $(id).addEventListener('keydown', e => {if (e.key === 'Enter') {e.preventDefault(); runSearch()} }));
+    $('clearSearch').addEventListener('click', () => showButtonFeedback($('clearSearch'), 'Clearing…', () => {
+      $('searchFrom').value = '';
+      document.addEventListener('pointerdown', event => {
+        const button = event.target.closest('button');
+        if (button && !button.disabled) button.classList.add('tap-feedback');
+      });
+      ['pointerup', 'pointercancel', 'pointerleave'].forEach(type => document.addEventListener(type, event => {
+        const button = event.target.closest && event.target.closest('button');
+        if (button) button.classList.remove('tap-feedback');
+      }));
+      document.addEventListener('click', event => {
+        const button = event.target.closest('button');
+        if (button && !button.disabled) {button.classList.add('tap-feedback'); window.setTimeout(() => button.classList.remove('tap-feedback'), 180);}
+      });
+
+      $('searchTo').value = today; $('searchSupplier').value = ''; $('searchKeyword').value = ''; $('searchType').value = ''; runSearch();
+    }));
+    $('searchCsv').addEventListener('click', () => {
+      const rows = window.vyraSearchResults || [];
+      const cols = activeSearchColumns().map(c => [c[0], c[1]]);
+      download('vyra-search-results-' + today + '.csv', makeCsv(cols, rows), 'text/csv;charset=utf-8;');
+    });
+    document.querySelectorAll('nav button').forEach(b => b.addEventListener('click', () => {document.querySelectorAll('nav button').forEach(x => x.classList.remove('active')); document.querySelectorAll('.panel').forEach(x => x.classList.remove('active')); b.classList.add('active'); $(b.dataset.tab).classList.add('active')}));
+    $('exportJson').onclick = () => download('vyra-backup-' + today + '.json', JSON.stringify({version: 2, exportedAt: new Date().toISOString(), transactions: txs}, null, 2), 'application/json');
+    $('exportCsv').onclick = () => {
+      const cols = [['Date', 'date'], ['Transaction Type', 'type'], ['Category', 'category'], ['Item / Description', 'item'], ['Quantity', 'qty'], ['Supplier', 'supplier'], ['Total Amount', 'amount'], ['Amount Paid', 'paid'], ['Payment Status', 'status'], ['Payment Method', 'method'], ['Sales Channel', 'channel'], ['Deductions', 'deduction'], ['Staff', 'employee'], ['Notes', 'notes'], ['Entered By', 'enteredBy']];
+      download('vyra-transactions-' + today + '.csv', makeCsv(cols, txs), 'text/csv;charset=utf-8;');
+    };
+    function csvCell(value) {return '"' + String(value ?? '').replace(/"/g, '""').replace(/\r?\n/g, ' ') + '"'}
+    function makeCsv(columns, rows) {
+      const header = columns.map(c => csvCell(c[0])).join(',');
+      const body = rows.map(row => columns.map(c => csvCell(row[c[1]])).join(','));
+      return '\uFEFF' + [header, ...body].join('\r\n');
+    }
+    function download(name, data, mime) {
+      const blob = new Blob([data], {type: mime}), url = URL.createObjectURL(blob), a = document.createElement('a');
+      a.href = url; a.download = name; a.style.display = 'none'; document.body.appendChild(a); a.click(); a.remove();
+      window.setTimeout(() => URL.revokeObjectURL(url), 1500);
+    }
+    $('importJson').onchange = async e => {let f = e.target.files[0]; if (!f) return; try {let d = JSON.parse(await f.text()); if (!Array.isArray(d.transactions)) throw Error('Invalid backup file.'); if (!confirm('Replace ALL transactions in the shared Google Sheet with ' + d.transactions.length + ' backup transactions?')) return; setBusy(true); google.script.run.withSuccessHandler(() => refreshFromSheet(() => alert('Backup restored to the shared sheet.'))).withFailureHandler(showError).restoreTransactions(d.transactions, 'RESTORE TRANSACTIONS');} catch (err) {alert(err.message || 'Invalid backup file.')} e.target.value = ''};
+
+    $('searchTo').value = today; $('searchTo').max = today; $('searchFrom').max = today; $('date').addEventListener('change', () => {if ($('date').value > today) $('date').value = today}); $('payDate').addEventListener('change', () => {if ($('payDate').value > today) $('payDate').value = today}); $('searchFrom').addEventListener('change', () => {if ($('searchFrom').value > today) $('searchFrom').value = today}); $('searchTo').addEventListener('change', () => {if ($('searchTo').value > today) $('searchTo').value = today}); typeFields(); renderSearchColumnChoices(); refreshFromSheet();
+  </script>
+</body>
+
+</html>
